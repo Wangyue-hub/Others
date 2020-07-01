@@ -1,6 +1,6 @@
 CREATE VIEW V_BIJIESHOW_PROCESSINSTANCE  
 AS
-SELECT i.Id as InstanceId,i.Status as InstanceStatus,l.Status as TaskStatus,l.WorkFlowNodeId,l.UserId
+SELECT i.Id as InstanceId,i.Status as InstanceStatus,l.Status as TaskStatus,n.Name as NodeName,e.EmployeeName
 FROM T_WorkFlowInstance i
 INNER JOIN (SELECT DISTINCT WorkFlowInstanceId,WorkFlowNodeId,CreateDate,Status,UserId
 			From T_WorkFlowTask i INNER JOIN (SELECT WorkFlowInstanceId as LastId,MAX(CreateDate)as LastTime
@@ -8,5 +8,7 @@ INNER JOIN (SELECT DISTINCT WorkFlowInstanceId,WorkFlowNodeId,CreateDate,Status,
 													 Group by t.WorkFlowInstanceId)AS k
 													 on i.CreateDate=k.LastTime )AS l
 ON l.WorkFlowInstanceId=i.Id
+INNER JOIN (SELECT EmployeeName,Id FROM T_USER)AS e ON l.UserId=e.Id
+INNER JOIN (SELECT Id,Name From T_WorkFlowNode) n ON n.Id=l.WorkFlowNodeId
 Where i.WorkFlowProcessId='205'
 GO
