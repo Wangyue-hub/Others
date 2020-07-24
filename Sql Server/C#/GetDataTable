@@ -1,0 +1,75 @@
+ public static string GetHtmlTableData(string url, string xpath, ref string message)
+        {
+            string result = string.Empty;
+            try
+            {
+                //取得IE浏览器的Document对象
+                HTMLDocumentClass myDoc = null;
+                //根据xPath,取得当前的Document及IE元素字符串
+                var jsStr = GetDocumentNew(url, xpath, "IEActivityGetHtmlTableData", true, ref myDoc, ref message);
+                if (!string.IsNullOrEmpty(message))
+                {
+                    return result;
+                }
+
+                jsStr += "var mybody = document.body;" +
+                         "var myhidden = document.createElement('input');" +
+                         "myhidden.setAttribute('type', 'hidden');" +
+                         "myhidden.setAttribute('id', id);";
+                jsStr += "myhidden.setAttribute('value', element.innerText);";
+
+                jsStr += "var table = mybody.getElementsByTagName('table')[0];";
+
+                jsStr += " for (var i = 0; i < table.rows.length; i++) {" +
+                        "var objCells = table.rows.item(i).cells;" +
+                        "for (var j = 0; j < objCells.length; j++)" +
+                        "{myhidden.innerHTML = myhidden.innerHTML + '$/*$' + objCells.item(j).innerHTML;}"+
+                        "myhidden.innerHTML = myhidden.innerHTML + '<br />';}";
+                jsStr += "mybody.appendChild(myhidden);";
+                jsStr += "}";
+
+                HTMLScriptElement script = (HTMLScriptElement)myDoc.createElement("script");
+                script.type = "text/javascript";
+                script.text = jsStr;
+                HTMLBody body1 = myDoc.body as HTMLBody;
+                body1.appendChild((IHTMLDOMNode)script);
+
+                //生成Guid
+                var strGuid = Guid.NewGuid().ToString();
+                script = (HTMLScriptElement)myDoc.createElement("script");
+                script.text = "IEActivityGetHtmlTableData('" + strGuid + "')";
+                body1.appendChild((IHTMLDOMNode)script);
+
+                IHTMLElement myHidden = (IHTMLElement)myDoc.getElementById(strGuid);
+                if (myHidden != null)
+                {
+                    try
+                    {
+                        result = myHidden.innerHTML;
+                    }
+                    catch (Exception ex)
+                    {
+                        //如果不是此错误则抛出错误
+                        if (ex.GetType().ToString() != "System.NullReferenceException")
+                        {
+                            throw ex;
+                        }
+                        else
+                        {
+                            message = "无datatable型数据";
+                        }
+                    }
+
+
+                }
+
+                //输出IE对象
+                //result = jsStr.Substring(5500,116);
+            }
+            catch (Exception ex)
+            {
+                message = ex.Message;
+            }
+
+            return result;
+        }
