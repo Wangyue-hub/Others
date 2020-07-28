@@ -23,7 +23,7 @@
                 jsStr += " for (var i = 0; i < table.rows.length; i++) {" +
                         "var objCells = table.rows.item(i).cells;" +
                         "for (var j = 0; j < objCells.length; j++)" +
-                        "{myhidden.innerHTML = myhidden.innerHTML + '$/*$' + objCells.item(j).innerHTML;}"+
+                        "{myhidden.innerHTML = myhidden.innerHTML + '$/*$' + objCells.item(j).innerText;}"+
                         "myhidden.innerHTML = myhidden.innerHTML + '<br />';}";
                 jsStr += "mybody.appendChild(myhidden);";
                 jsStr += "}";

@@ -1,0 +1,28 @@
+ public string GetHtmlTableData(string xpath)
+        {
+            var exeFile = "UnionSoft.UiAuto.Studio.Tools.exe";
+            string exePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, exeFile);
+
+            System.Diagnostics.Process p = new System.Diagnostics.Process();
+            p.StartInfo.FileName = exePath;
+            p.StartInfo.Arguments = $"{"gt"} {ieDriver.LocationURL} {xpath.Replace(" ", "|")}";
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = false;
+            p.StartInfo.RedirectStandardOutput = true;
+
+            p.Start();
+            string value = p.StandardOutput.ReadToEnd().Replace("\r\n", "");
+            p.WaitForExit();
+            if (value.IndexOf("ERROR:") != -1)
+            {
+                throw new Exception(value.Replace("ERROR:", ""));
+            }
+
+            return value;
+        }
+
+//此处重点为
+//string value = p.StandardOutput.ReadToEnd().Replace("\r\n", "");
+//p.WaitForExit();
+//的顺序，是违逆常识的
+//StandardOutput的缓存存在长度限制500Lines
